@@ -35,8 +35,16 @@ def train_step(discriminator, generator, d_op, g_op, images, noise):
 
 def train(args):
 
-  d_lr = tf.keras.optimizers.schedules.ExponentialDecay(args.d_lr, args.num_training_steps,0.96)
-  g_lr = tf.keras.optimizers.schedules.ExponentialDecay(args.g_lr, args.num_training_steps,0.96)
+  if(args.no_scheduler):
+
+    d_lr = arg.d_lr
+    g_lr = args.g_lr
+
+  else:
+
+    d_lr = tf.keras.optimizers.schedules.ExponentialDecay(args.d_lr, args.num_training_steps,0.96)
+    g_lr = tf.keras.optimizers.schedules.ExponentialDecay(args.g_lr, args.num_training_steps,0.96)
+
 
   #setup optimizers
   discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=d_lr, beta_1=0.0,beta_2=0.9)

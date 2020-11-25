@@ -18,6 +18,7 @@ def parse_args():
 	parser.add_argument('--img_dim', type=int, default=128, help='The dimension of the image')
 	parser.add_argument('--d_lr', type=float, default=.0004, help='The initial discriminator lr')
 	parser.add_argument('--g_lr', type=float, default=.0001, help='The initial generator lr')
+	parser.add_argument('--no_scheduler', action='store_true')
 	parser.add_argument('--print_freq', type=int, default=100, help='How often is the status printed')
 	parser.add_argument('--save_freq', type=int, default=1000, help='How often is the model saved')
 
