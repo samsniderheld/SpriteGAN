@@ -37,7 +37,7 @@ def train(args):
 
   if(args.no_scheduler):
 
-    d_lr = arg.d_lr
+    d_lr = args.d_lr
     g_lr = args.g_lr
 
   else:
