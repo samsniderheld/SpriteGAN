@@ -50,6 +50,8 @@ def train(args):
   discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=d_lr, beta_1=0.0,beta_2=0.9)
   generator_optimizer = tf.keras.optimizers.Adam(learning_rate=g_lr, beta_1=0.0, beta_2=0.9)
   
+
+  #setup tf.dataset
   data_dir = args.data_dir
   
   dataset = tf.keras.preprocessing.image_dataset_from_directory(
@@ -81,12 +83,8 @@ def train(args):
   discriminator.summary()
 
   #setup reporting lists
-  experience_images = []
-  experience_conditions = []
   all_disc_loss = []
   all_gen_loss = []
-  all_fid = []
-  all_fid_avg = []
 
   #seed values for reporting images
   latent_seed = tf.random.normal([9, 1,1,args.noise_dim])

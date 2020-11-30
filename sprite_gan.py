@@ -1,5 +1,6 @@
 import argparse
 from Training.training import train
+from Training.training_distributed import *
 import os
 import shutil
 
@@ -21,6 +22,7 @@ def parse_args():
 	parser.add_argument('--no_scheduler', action='store_true')
 	parser.add_argument('--print_freq', type=int, default=100, help='How often is the status printed')
 	parser.add_argument('--save_freq', type=int, default=1000, help='How often is the model saved')
+	parser.add_argument('--distributed', action='store_true')
 
 	return parser.parse_args()
 
@@ -47,7 +49,13 @@ def main():
 
 	args = parse_args()
 
-	train(args)
+	if(args.distributed):
+
+		trainer = DistributedTrainer(args)
+		trainer.train()
+
+	else:
+		train(args)
 
 	print("done training")
 
