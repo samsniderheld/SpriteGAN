@@ -87,16 +87,16 @@ class DistributedTrainer:
     self.discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, self.discriminator.trainable_variables))
 
 
-  #train and upate generator
-  with tf.GradientTape() as gen_tape:
-    generated_images = self.generator(noise, training=True)
-    fake_output = self.discriminator(generated_images, training=True)
-    gen_loss = sagan_generator_loss(fake_output)
+    #train and upate generator
+    with tf.GradientTape() as gen_tape:
+      generated_images = self.generator(noise, training=True)
+      fake_output = self.discriminator(generated_images, training=True)
+      gen_loss = sagan_generator_loss(fake_output)
 
-  gradients_of_generator = gen_tape.gradient(gen_loss, self.generator.trainable_variables)
-  self.generator_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
+    gradients_of_generator = gen_tape.gradient(gen_loss, self.generator.trainable_variables)
+    self.generator_optimizer.apply_gradients(zip(gradients_of_generator, self.generator.trainable_variables))
 
-  return disc_loss, gen_loss
+    return disc_loss, gen_loss
 
 
   @tf.function
