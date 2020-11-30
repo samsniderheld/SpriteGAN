@@ -96,7 +96,7 @@ def train(args):
   #run through all steps using tf dataset
 
   #calculate epochs based off of desired number of steps
-  files = sorted(glob.glob(data_dir + 'images/*.png')) 
+  files = sorted(glob.glob(data_dir + 'images/*')) 
   files_len = len(files)
   steps_per_epoch = files_len / args.batch_size
   num_epochs = int(args.num_training_steps / steps_per_epoch)
