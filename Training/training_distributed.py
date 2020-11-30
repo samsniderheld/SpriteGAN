@@ -100,7 +100,7 @@ class DistributedTrainer:
     per_replica_g_loss, per_replica_d_loss = self.strategy.run(self.train_step, args=(dist_dataset,))
 
     total_g_loss = self.strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_g_loss, axis=None)
-    total_d_loss = self.trategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_d_loss, axis=None)
+    total_d_loss = self.strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_d_loss, axis=None)
 
     self.all_disc_loss.append(total_g_loss)
     self.all_gen_loss.append(total_d_loss)
