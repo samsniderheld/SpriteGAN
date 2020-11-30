@@ -117,7 +117,7 @@ class DistributedTrainer:
     step_begin_time = time.time()
 
     #calculate epochs based off of desired number of steps
-    files = sorted(glob.glob(self.data_dir + 'images/*.png')) 
+    files = sorted(glob.glob(self.data_dir + 'images/*')) 
     files_len = len(files)
     steps_per_epoch = files_len / self.global_batch_size
     num_epochs = int(self.num_training_steps / steps_per_epoch)
