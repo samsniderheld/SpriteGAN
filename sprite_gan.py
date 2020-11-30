@@ -52,7 +52,7 @@ def main():
 	if(args.distributed):
 
 		trainer = DistributedTrainer(args)
-		trainer.train()
+		trainer.train(args)
 
 	else:
 		train(args)

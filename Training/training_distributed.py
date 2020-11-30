@@ -23,8 +23,8 @@ class DistributedTrainer:
       self.d_lr = tf.keras.optimizers.schedules.ExponentialDecay(args.d_lr, args.num_training_steps,0.96)
       self.g_lr = tf.keras.optimizers.schedules.ExponentialDecay(args.g_lr, args.num_training_steps,0.96)
 
-    self.discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=d_lr, beta_1=0.0,beta_2=0.9)
-    self.generator_optimizer = tf.keras.optimizers.Adam(learning_rate=g_lr, beta_1=0.0, beta_2=0.9)
+    self.discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=self.d_lr, beta_1=0.0,beta_2=0.9)
+    self.generator_optimizer = tf.keras.optimizers.Adam(learning_rate=self.g_lr, beta_1=0.0, beta_2=0.9)
 
     self.global_batch_size = args.batch_size
     self.batch_size_per_replica = self.global_batch_size / self.strategy.num_replicas_in_sync
@@ -41,10 +41,6 @@ class DistributedTrainer:
     self.data_dir = args.data_dir
     self.dataset = self._init_data_set()
 
-    self.generator = make_sagan_generator_model(self.img_dim, self.noise_shape, self.gen_kernel_size, self.kernel_init)
-    self.discriminator = make_sagan_discriminator_model(self.img_dim, self.disc_kernel_size, self.kernel_init)
-    self.generator.summary()
-    self.discriminator.summary()
     self.all_disc_loss = []
     self.all_gen_loss = []
 
@@ -71,7 +67,7 @@ class DistributedTrainer:
 
 
   @tf.function
-  def train_step(images):
+  def train_step(self, images):
 
     noise = tf.random.normal([images.shape[0],1,1,self.noise_dim])
 
@@ -100,11 +96,11 @@ class DistributedTrainer:
 
 
   @tf.function
-  def distribute_trains_step(dist_dataset):
+  def distribute_trains_step(self, dist_dataset):
     per_replica_g_loss, per_replica_d_loss = self.strategy.run(self.train_step, args=(dist_dataset,))
 
-    total_g_loss = strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_g_loss, axis=0)
-    total_d_loss = strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_d_loss, axis=0)
+    total_g_loss = self.strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_g_loss, axis=None)
+    total_d_loss = self.trategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_d_loss, axis=None)
 
     self.all_disc_loss.append(total_g_loss)
     self.all_gen_loss.append(total_d_loss)
@@ -112,7 +108,7 @@ class DistributedTrainer:
     return total_g_loss, total_d_loss
 
 
-  def train(args):
+  def train(self, args):
 
     #seed values for reporting images
     latent_seed = tf.random.normal([9, 1,1,self.noise_dim])
@@ -129,6 +125,11 @@ class DistributedTrainer:
     step_counter = 0
 
     with self.strategy.scope():
+
+      self.generator = make_sagan_generator_model(self.img_dim, self.noise_shape, args.gen_kernel_size, self.kernel_init)
+      self.discriminator = make_sagan_discriminator_model(self.img_dim, args.disc_kernel_size, self.kernel_init)
+      self.generator.summary()
+      self.discriminator.summary()
 
       for epoch in range(num_epochs):
 
@@ -148,7 +149,7 @@ class DistributedTrainer:
             generate_and_save_images(self.generator, step_counter, latent_seed)
 
             #plot_losses
-            plot_loss(self.all_disc_loss,self.all_gen_loss)
+            # plot_loss(self.all_disc_loss,self.all_gen_loss)
             
             step_begin_time = time.time()
               
