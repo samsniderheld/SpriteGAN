@@ -20,17 +20,13 @@ def make_sagan_generator_model(img_dim, noise_shape, gen_kernel_size, kernel_ini
   
   generator = up_res_block(generator,num_filters // 4, gen_kernel_size, kernel_init)
 
-  if(img_dim != 256):
-
-    generator = SelfAttention()(generator)
+  generator = SelfAttention()(generator)
 
   generator = up_res_block(generator,num_filters // 8, gen_kernel_size, kernel_init)
 
   generator = up_res_block(generator,num_filters // 16, gen_kernel_size, kernel_init)
 
   if(img_dim == 256):
-
-    generator = SelfAttention()(generator)
 
     generator = up_res_block(generator,num_filters // 32, gen_kernel_size, kernel_init)
 
