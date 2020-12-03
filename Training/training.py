@@ -80,7 +80,7 @@ def train(args):
 
 
   generator.summary()
-  discriminator.summary()
+  # discriminator.summary()
 
   #setup reporting lists
   all_disc_loss = []

@@ -129,7 +129,7 @@ class DistributedTrainer:
       self.generator = make_sagan_generator_model(self.img_dim, self.noise_shape, args.gen_kernel_size, self.kernel_init)
       self.discriminator = make_sagan_discriminator_model(self.img_dim, args.disc_kernel_size, self.kernel_init)
       self.generator.summary()
-      self.discriminator.summary()
+      # self.discriminator.summary()
 
       for epoch in range(num_epochs):
 
