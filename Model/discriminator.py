@@ -12,21 +12,11 @@ def make_sagan_discriminator_model(img_dim, disc_kernel_size, kernel_init):
 
   num_filters = 64
 
-  if(img_dim == 256):
-
-    discriminator = down_res_block(dis_input,num_filters // 2, disc_kernel_size, kernel_init)
-
   discriminator = down_res_block(dis_input,num_filters, disc_kernel_size, kernel_init)
-
-  if(img_dim == 256):
-
-    discriminator = SelfAttention()(discriminator)
   
   discriminator = down_res_block(discriminator,num_filters * 2, disc_kernel_size, kernel_init)
 
-  if(img_dim != 256):
-
-    discriminator = SelfAttention()(discriminator)
+  discriminator = SelfAttention()(discriminator)
   
   discriminator = down_res_block(discriminator,num_filters * 4, disc_kernel_size, kernel_init)
   
