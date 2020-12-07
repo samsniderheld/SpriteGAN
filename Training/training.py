@@ -68,6 +68,8 @@ def train(args):
 
   AUTOTUNE = tf.data.experimental.AUTOTUNE
 
+  dataset = dataset.shuffle(10000, reshuffle_each_iteration=True)
+
   dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
   #setup models
