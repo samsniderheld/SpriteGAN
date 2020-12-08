@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Dense, Input, LeakyReLU
-from Model.ops import down_res_block
+from Model.ops import down_res_block, dense_spectral_norm
 from Model.layers import SelfAttention
 from tensorflow.keras.models import Model
 import tensorflow as tf
@@ -29,6 +29,8 @@ def make_sagan_discriminator_model(img_dim, disc_kernel_size, kernel_init):
   discriminator = tf.reduce_sum(discriminator, axis=[1, 2])
   
   discriminator = Dense(1)(discriminator)
+
+  discriminator  = dense_spectral_norm(discriminator,1,True)
     
   discriminator_model = Model(dis_input, discriminator)  
   

@@ -10,7 +10,7 @@ def make_sagan_generator_model(img_dim, noise_shape, gen_kernel_size, kernel_ini
 
   gen_input = Input(shape = noise_shape)
 
-  generator = dense_spectral_norm(gen_input,4*4*num_filters,False)
+  generator = dense_spectral_norm(gen_input,4*4*num_filters,True)
   
   generator = Reshape((4,4,num_filters))(generator)
   

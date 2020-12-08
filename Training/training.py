@@ -76,7 +76,7 @@ def train(args):
 
   #setup models
   noise_shape = (1,1,args.noise_dim)
-  kernel_init = tf.keras.initializers.GlorotNormal()
+  kernel_init = tf.keras.initializers.GlorotUniform()
 
 
   generator = make_sagan_generator_model(args.img_dim, noise_shape, args.gen_kernel_size, kernel_init)
