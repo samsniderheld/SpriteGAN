@@ -40,6 +40,23 @@ def generate_and_save_images(model, step, test_input):
   plt.close('all')
 
 
+def test_dataset(imgs):
+
+  for i in range(len(imgs)):
+
+      ax1 = plt.subplot(gs1[i])
+      ax1.set_aspect('equal')
+      image= imgs[i]/ 255.
+      fig = plt.imshow(image)
+      plt.axis('off')
+      fig.axes.get_xaxis().set_visible(False)
+      fig.axes.get_yaxis().set_visible(False)
+
+  plt.tight_layout()
+  plt.savefig('Results/Images/dataset_representation.png')
+  plt.show()
+
+
 def plot_loss(all_disc_loss,all_gen_loss):
 
   plt.figure(figsize=(10,5))

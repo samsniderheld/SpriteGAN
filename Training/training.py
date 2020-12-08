@@ -3,7 +3,7 @@ from Model.discriminator import make_sagan_discriminator_model
 from Model.generator import make_sagan_generator_model
 from Model.load_model import load_models_from_step
 from Training.loss_functions import sagan_discriminator_loss, sagan_generator_loss
-from Utils.reporting import generate_and_save_images, plot_loss
+from Utils.reporting import *
 import time
 import glob
 
@@ -68,9 +68,13 @@ def train(args):
 
   AUTOTUNE = tf.data.experimental.AUTOTUNE
 
+  dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
+
   dataset = dataset.shuffle(10000, reshuffle_each_iteration=True)
 
-  dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
+  test_dataset_imgs = list(dataset.take(9).as_numpy_iterator())
+
+  test_dataset(test_dataset_imgs)
 
   #setup models
   noise_shape = (1,1,args.noise_dim)
