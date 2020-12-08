@@ -70,11 +70,9 @@ def train(args):
 
   dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
-  dataset = dataset.shuffle(10000, reshuffle_each_iteration=True)
+  test_dataset_imgs = list(dataset.take(1).as_numpy_iterator())
 
-  test_dataset_imgs = list(dataset.take(9).as_numpy_iterator())
-
-  test_dataset(test_dataset_imgs)
+  test_dataset(test_dataset_imgs[0])
 
   #setup models
   noise_shape = (1,1,args.noise_dim)
