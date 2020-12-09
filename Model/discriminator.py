@@ -34,8 +34,6 @@ def make_sagan_discriminator_model(img_dim, disc_kernel_size, kernel_init):
 
   discriminator = tf.reduce_sum(discriminator, axis=[1, 2])
   
-  # discriminator = Dense(1)(discriminator)
-
   discriminator  = dense_spectral_norm(discriminator,1,True)
     
   discriminator_model = Model(dis_input, discriminator)  

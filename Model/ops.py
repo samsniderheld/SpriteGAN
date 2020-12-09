@@ -68,7 +68,7 @@ def final_block(input, filters, disc_kernel_size, kernel_init):
   output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
   
   output = LeakyReLU(0.2)(output)
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True) 
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True) 
 
   output = Add()([output, input])
 
