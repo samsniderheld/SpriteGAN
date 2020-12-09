@@ -30,7 +30,7 @@ def make_sagan_generator_model(img_dim, noise_shape, gen_kernel_size, kernel_ini
 
   generator = Activation('relu')(generator)
 
-  generator = Conv2D(filters = 3, kernel_size = (gen_kernel_size,gen_kernel_size), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=False)(generator)
+  generator = Conv2D(filters = 3, kernel_size = (gen_kernel_size,gen_kernel_size), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=True)(generator)
   
   generator = Activation('tanh')(generator)
   

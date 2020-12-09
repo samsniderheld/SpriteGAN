@@ -90,9 +90,6 @@ def train(args):
   all_disc_loss = []
   all_gen_loss = []
 
-  #seed values for reporting images
-  latent_seed = tf.random.normal([9, 1,1,args.noise_dim])
-
   #start counter
   step_begin_time = time.time()
 
@@ -125,6 +122,9 @@ def train(args):
         diff_time = int(end_time - step_begin_time)
 
         print("Step %d completed. Time took: %s secs." % (step_counter, diff_time))
+
+        #seed values for reporting images
+        latent_seed = tf.random.normal([9, 1,1,args.noise_dim])
 
         generate_and_save_images(generator, step_counter, latent_seed)
 
