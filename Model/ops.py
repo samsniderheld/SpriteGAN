@@ -84,7 +84,7 @@ def down_res_block_2_init(input, filters, disc_kernel_size, kernel_init):
   output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
   output = LeakyReLU(0.2)(output)
 
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
   output = AveragePooling2D()(output)
 
   output = Add()([output, skip])
