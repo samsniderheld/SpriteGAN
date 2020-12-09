@@ -28,7 +28,7 @@ def make_sagan_discriminator_model(img_dim, disc_kernel_size, kernel_init):
 
   discriminator = down_res_block_2(discriminator,num_filters * 16, disc_kernel_size, kernel_init)
 
-  discriminator = final_block(discriminator,num_filters * 32, disc_kernel_size, kernel_init)
+  discriminator = down_res_block_2(discriminator,num_filters * 32, disc_kernel_size, kernel_init)
   
   discriminator = LeakyReLU(.2)(discriminator)
 
