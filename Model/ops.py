@@ -43,6 +43,54 @@ def down_res_block(input, filters, disc_kernel_size, kernel_init):
 
   return output
 
+#via https://github.com/taki0112/Self-Attention-GAN-Tensorflow/blob/master/ops.py
+def down_res_block_2(input, filters, disc_kernel_size, kernel_init):
+
+  skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True)
+  skip = AveragePooling2D()(sip)
+
+  output = LeakyReLU(0.2)(input)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
+  
+  output = LeakyReLU(0.2)(output)
+  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True) 
+
+  output = AveragePooling2D()(output)
+
+  output = Add()([output, skip])
+
+  return output
+
+
+def final_block(input, filters, disc_kernel_size, kernel_init):
+
+  output = LeakyReLU(0.2)(input)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
+  
+  output = LeakyReLU(0.2)(output)
+  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True) 
+
+  output = Add()([output, input])
+
+  return output
+
+def down_res_block_2_init(input, filters, disc_kernel_size, kernel_init):
+
+  skip = AveragePooling2D(input)
+  skip = conv_spectral_norm(skip, filters, disc_kernel_size, 1,kernel_init,True)
+
+  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
+  output = LeakyReLU(0.2)(output)
+
+  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
+  output = AveragePooling2D()(output)
+
+  output = Add()([output, skip])
+
+
+  return output
+
+
 
 def dense_spectral_norm(input,filters,bias):
 
