@@ -12,29 +12,29 @@ def make_sagan_discriminator_model(img_dim, disc_kernel_size, kernel_init):
 
   num_filters = 64
 
-  # discriminator = down_res_block_2_init(dis_input,num_filters, disc_kernel_size, kernel_init)
+  discriminator = down_res_block_2_init(dis_input,num_filters, disc_kernel_size, kernel_init)
   
-  # discriminator = down_res_block_2(discriminator,num_filters * 2, disc_kernel_size, kernel_init)
+  discriminator = down_res_block_2(discriminator,num_filters * 2, disc_kernel_size, kernel_init)
 
-  discriminator = down_res_block(dis_input,num_filters, disc_kernel_size, kernel_init)
+  # discriminator = down_res_block(dis_input,num_filters, disc_kernel_size, kernel_init)
   
-  discriminator = down_res_block(discriminator,num_filters * 2, disc_kernel_size, kernel_init)
+  # discriminator = down_res_block(discriminator,num_filters * 2, disc_kernel_size, kernel_init)
 
   discriminator = SelfAttention()(discriminator)
 
-  discriminator = down_res_block(discriminator,num_filters * 4, disc_kernel_size, kernel_init)
+  # discriminator = down_res_block(discriminator,num_filters * 4, disc_kernel_size, kernel_init)
   
-  discriminator = down_res_block(discriminator,num_filters * 8, disc_kernel_size, kernel_init)
+  # discriminator = down_res_block(discriminator,num_filters * 8, disc_kernel_size, kernel_init)
 
-  discriminator = down_res_block(discriminator,num_filters * 16, disc_kernel_size, kernel_init)
+  # discriminator = down_res_block(discriminator,num_filters * 16, disc_kernel_size, kernel_init)
   
-  # discriminator = down_res_block_2(discriminator,num_filters * 4, disc_kernel_size, kernel_init)
+  discriminator = down_res_block_2(discriminator,num_filters * 4, disc_kernel_size, kernel_init)
   
-  # discriminator = down_res_block_2(discriminator,num_filters * 8, disc_kernel_size, kernel_init)
+  discriminator = down_res_block_2(discriminator,num_filters * 8, disc_kernel_size, kernel_init)
 
-  # discriminator = down_res_block_2(discriminator,num_filters * 16, disc_kernel_size, kernel_init)
+  discriminator = down_res_block_2(discriminator,num_filters * 16, disc_kernel_size, kernel_init)
 
-  # discriminator = final_block(discriminator,num_filters * 32, disc_kernel_size, kernel_init)
+  discriminator = final_block(discriminator,num_filters * 32, disc_kernel_size, kernel_init)
   
   discriminator = LeakyReLU(.2)(discriminator)
 
