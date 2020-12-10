@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Conv2D, Activation, Input, Reshape, BatchNormalization
-from Model.ops import up_res_block, dense_spectral_norm
+from Model.ops import up_res_block, dense_spectral_norm, conv_spectral_norm
 from Model.layers import SelfAttention
 from tensorflow.keras.models import Model
 
@@ -30,8 +30,10 @@ def make_sagan_generator_model(img_dim, noise_shape, gen_kernel_size, kernel_ini
 
   generator = Activation('relu')(generator)
 
-  generator = Conv2D(filters = 3, kernel_size = (gen_kernel_size,gen_kernel_size), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=True)(generator)
+  # generator = Conv2D(filters = 3, kernel_size = (gen_kernel_size,gen_kernel_size), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=True)(generator)
   
+  generator = conv_spectral_norm(generator, 3, gen_kernel_size, 1, kernel_init, True) 
+
   generator = Activation('tanh')(generator)
   
   generator_model = Model( gen_input, generator)
