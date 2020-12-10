@@ -30,10 +30,10 @@ def down_res_block(input, filters, disc_kernel_size, kernel_init):
   output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, False)
   output = LeakyReLU(0.2)(output)
 
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, False)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, False)
   output = LeakyReLU(0.2)(output)
 
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, False)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, False)
 
   output = Add()([output, skip])
   output = LeakyReLU(0.2)(output)
