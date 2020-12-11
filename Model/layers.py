@@ -139,14 +139,14 @@ class SelfAttention(tf.keras.Model):
     def call(self, x):
         batch_size, height, width, n_channels = x.shape
         f = self.conv1x1_f(x)
-        f = self.f_maxpool(f)
-        f = tf.reshape(f, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
-        # f = tf.reshape(f, [tf.shape(x)[0], height * width, n_channels // 8])
+        # f = self.f_maxpool(f)
+        # f = tf.reshape(f, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
+        f = tf.reshape(f, [tf.shape(x)[0], height * width, n_channels // 8])
 
         g = self.conv1x1_g(x)
-        # g = self.g_maxpool(g)
-        # g = tf.reshape(g, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
-        g = tf.reshape(g, [tf.shape(x)[0], height * width, n_channels // 8])
+        g = self.g_maxpool(g)
+        g = tf.reshape(g, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
+        # g = tf.reshape(g, [tf.shape(x)[0], height * width, n_channels // 8])
 
         attn_map = tf.matmul(f, g, transpose_b=True)
         attn_map = tf.nn.softmax(attn_map)
