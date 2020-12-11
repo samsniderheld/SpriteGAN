@@ -119,4 +119,4 @@ def down_sample(input):
   return AveragePooling2D(input, pool_size=(2,2), strides = (2,2))
 
 def hw_flatten(x) :
-    return tf.reshape(x, shape=[x.shape[0], -1, x.shape[-1]])
+  return tf.reshape(x, shape=[x.shape[0], -1, x.shape[-1]])

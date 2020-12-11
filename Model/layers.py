@@ -1,5 +1,5 @@
 import tensorflow as tf
-from ops import *
+from Model.ops import hw_flatten
 from tensorflow.keras.layers import MaxPool2D
 
 
@@ -169,7 +169,7 @@ class SelfAttention(tf.keras.Model):
 
 class SelfAttention2(tf.keras.Model):
     def __init__(self, spectral_norm=True):
-        super(SelfAttention, self).__init__()
+        super(SelfAttention2, self).__init__()
         self.scaling_factor = tf.Variable(0.0)
         self.spectral_norm = spectral_norm
 
@@ -179,17 +179,21 @@ class SelfAttention2(tf.keras.Model):
             'scaling_factor': self.scaling_factor,
             'spectral_norm': self.spectral_norm,
         })
-        return config        
+        return config
+
+    def build(Self):
+
+        self.conv_spectral_norm = SpectralNormalization(tf.keras.layers.Conv2D())       
 
     def call(self, x):
         kernel_init = tf.keras.initializers.GlorotUniform()
         batch_size, height, width, num_channels = x.get_shape().as_list()
-        f = conv_spectral_norm(x, num_channels // 8, 1, 1,kernel_init,True) # [bs, h, w, c']
+        f = self.conv_spectral_norm(x, num_channels // 8, 1, 1,kernel_init,True) # [bs, h, w, c']
         f = MaxPool2D()(f)
 
-        g = conv_spectral_norm(x, num_channels // 8, 1, 1,kernel_init,True) # [bs, h, w, c']
+        g = self.conv_spectral_norm(x, num_channels // 8, 1, 1,kernel_init,True) # [bs, h, w, c']
 
-        h = conv_spectral_norm(x, num_channels // 2, 1, 1,kernel_init,True) # [bs, h, w, c']
+        h = self.conv_spectral_norm(x, num_channels // 2, 1, 1,kernel_init,True) # [bs, h, w, c']
         h = MaxPool2D()(h)
 
         # N = h * w
@@ -201,7 +205,7 @@ class SelfAttention2(tf.keras.Model):
         gamma = tf.get_variable("gamma", [1], initializer=tf.constant_initializer(0.0))
 
         o = tf.reshape(o, shape=[batch_size, height, width, num_channels // 2])  # [bs, h, w, C]
-        o = conv_spectral_norm(o, num_channels , 1, 1,kernel_init,True) # [bs, h, w, c']
+        o = self.conv_spectral_norm(o, num_channels , 1, 1,kernel_init,True) # [bs, h, w, c']
         x = gamma * o + x
 
         return x
