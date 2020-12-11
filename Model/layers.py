@@ -179,12 +179,7 @@ class SelfAttention2(tf.keras.Model):
             'scaling_factor': self.scaling_factor,
             'spectral_norm': self.spectral_norm,
         })
-        return config
-
-
-    def build(self, input):
-        
-
+        return config        
 
     def call(self, x):
         kernel_init = tf.keras.initializers.GlorotUniform()
