@@ -16,7 +16,7 @@ def up_res_block(input, filters, gen_kernel_size, kernel_init):
   
   output = BatchNormalization()(output)
   output = ReLU()(output)
-  output = conv_spectral_norm(output, filters,gen_kernel_size,1,kernel_init, False)
+  output = conv_spectral_norm(output, filters,gen_kernel_size,1,kernel_init, True)
 
   output = Add()([output, skip])
 
@@ -25,15 +25,15 @@ def up_res_block(input, filters, gen_kernel_size, kernel_init):
 #via https://github.com/manicman1999/Keras-BiGAN/blob/master/bigan.py
 def down_res_block(input, filters, disc_kernel_size, kernel_init):
 
-  skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,False)
+  skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True)
 
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, False)
+  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
   output = LeakyReLU(0.2)(output)
 
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, False)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
   output = LeakyReLU(0.2)(output)
 
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, False)
+  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
 
   output = Add()([output, skip])
   output = LeakyReLU(0.2)(output)
