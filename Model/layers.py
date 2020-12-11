@@ -13,7 +13,7 @@ class SpectralNormalization(tf.keras.layers.Wrapper):
         power_iternations (int): Number of power iterations to approximate the values"
     """
 
-    def __init__(self, layer, power_iterations=5, **kwargs):
+    def __init__(self, layer, power_iterations=1, **kwargs):
         super(SpectralNormalization, self).__init__(layer, **kwargs)
         if power_iterations <= 0:
             raise ValueError(
@@ -131,6 +131,7 @@ class SelfAttention(tf.keras.Model):
                 )
             )
 
+        self.f_maxpool = tf.keras.layers.MaxPool2D(pool_size=(2, 2), strides=2)
         self.g_maxpool = tf.keras.layers.MaxPool2D(pool_size=(2, 2), strides=2)
         self.h_maxpool = tf.keras.layers.MaxPool2D(pool_size=(2, 2), strides=2)
 
@@ -138,16 +139,22 @@ class SelfAttention(tf.keras.Model):
     def call(self, x):
         batch_size, height, width, n_channels = x.shape
         f = self.conv1x1_f(x)
-        f = tf.reshape(f, [tf.shape(x)[0], height * width, n_channels // 8])
+        f = self.f_maxpool(f)
+        f = tf.reshape(f, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
+        # f = tf.reshape(f, [tf.shape(x)[0], height * width, n_channels // 8])
+
         g = self.conv1x1_g(x)
-        g = self.g_maxpool(g)
-        g = tf.reshape(g, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
+        # g = self.g_maxpool(g)
+        # g = tf.reshape(g, [tf.shape(x)[0], (height * width) // 4, n_channels // 8])
+        g = tf.reshape(g, [tf.shape(x)[0], height * width, n_channels // 8])
+
         attn_map = tf.matmul(f, g, transpose_b=True)
         attn_map = tf.nn.softmax(attn_map)
 
         h = self.conv1x1_h(x)
         h = self.h_maxpool(h)
         h = tf.reshape(h, [tf.shape(x)[0], (height * width) // 4, n_channels // 2])
+
         attn_h = tf.matmul(attn_map, h)
         attn_h = tf.reshape(attn_h, [tf.shape(x)[0], width, height, n_channels // 2])
         attn_h = self.conv1x1_attn(attn_h)
