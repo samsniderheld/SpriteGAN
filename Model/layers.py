@@ -169,7 +169,7 @@ class SelfAttention(tf.keras.Model):
 class SelfAttention2(tf.keras.Model):
     def __init__(self, spectral_norm=True):
         super(SelfAttention2, self).__init__()
-        self.scaling_factor = tf.Variable([0.0])
+        self.scaling_factor = tf.Variable([1.0])
         self.spectral_norm = spectral_norm
 
     def get_config(self):

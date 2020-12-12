@@ -63,14 +63,20 @@ def train(args):
 
   normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./127.5, offset=-1)
 
+  files = sorted(glob.glob(data_dir + 'images/*')) 
+  files_len = len(files)
 
   dataset = dataset.map(lambda x: normalization_layer(x))
 
-  AUTOTUNE = tf.data.experimental.AUTOTUNE
+  dataset = dataset.shuffle(files_len, reshuffle_each_iteration=True)
 
-  dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
+  # AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+  # dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
   test_dataset_imgs = list(dataset.take(1).as_numpy_iterator())
+
+  print(dataset.take(1))
 
   test_dataset(test_dataset_imgs[0])
 
@@ -97,8 +103,7 @@ def train(args):
   #run through all steps using tf dataset
 
   #calculate epochs based off of desired number of steps
-  files = sorted(glob.glob(data_dir + 'images/*')) 
-  files_len = len(files)
+
   steps_per_epoch = files_len / args.batch_size
   num_epochs = int(args.num_training_steps / steps_per_epoch)
 
@@ -142,6 +147,7 @@ def train(args):
         discriminator.save_weights("SavedModels/discriminator_weights_at_step_{}.h5".format(step_counter))
 
       step_counter += 1
+    
 
   generator.save_weights("SavedModels/generator_weights_at_step_{}.h5".format(args.num_training_steps))
   discriminator.save_weights("SavedModels/discriminator_weights_at_step_{}.h5".format(args.num_training_steps))
