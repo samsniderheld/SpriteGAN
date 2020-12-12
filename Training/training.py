@@ -8,7 +8,7 @@ import time
 import glob
 
 @tf.function
-def train_step(discriminator, generator, d_op, g_op, images, noise, iter):
+def train_step(discriminator, generator, d_op, g_op, images, noise):
 
   #train and upate discriminator on real data
   with tf.GradientTape() as disc_tape:
@@ -21,20 +21,38 @@ def train_step(discriminator, generator, d_op, g_op, images, noise, iter):
   gradients_of_discriminator = disc_tape.gradient(disc_loss, discriminator.trainable_variables)
   d_op.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
 
-  if(iter%2 == 0):
-    #train and upate generator
-    with tf.GradientTape() as gen_tape:
-      generated_images = generator(noise, training=True)
-      fake_output = discriminator(generated_images, training=True)
-      gen_loss = sagan_generator_loss(fake_output)
+  #train and upate generator
+  with tf.GradientTape() as gen_tape:
+    generated_images = generator(noise, training=True)
+    fake_output = discriminator(generated_images, training=True)
+    gen_loss = sagan_generator_loss(fake_output)
 
-    gradients_of_generator = gen_tape.gradient(gen_loss, generator.trainable_variables)
-    g_op.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
-    
-  else:
-    gen_loss = 0
+  gradients_of_generator = gen_tape.gradient(gen_loss, generator.trainable_variables)
+  g_op.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
+
+
 
   return disc_loss, gen_loss
+
+
+@tf.function
+def train_step_disc(discriminator, d_op, images, noise):
+
+  #train and upate discriminator on real data
+  with tf.GradientTape() as disc_tape:
+    real_output = discriminator(images, training=True)
+    generated_images = generator(noise, training=True)
+    fake_output = discriminator(generated_images, training=True)
+
+    disc_loss = sagan_discriminator_loss(real_output,fake_output)
+
+  gradients_of_discriminator = disc_tape.gradient(disc_loss, discriminator.trainable_variables)
+  d_op.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
+
+
+
+
+  return disc_loss
 
 def train(args):
 
@@ -111,7 +129,7 @@ def train(args):
   num_epochs = int(args.num_training_steps / steps_per_epoch)
 
   step_counter = 0
-
+  last_loss = None
   for epoch in range(num_epochs):
 
     for batch in dataset:
@@ -119,10 +137,16 @@ def train(args):
       noise = tf.random.normal([args.batch_size,1,1,args.noise_dim])
 
       #perform forward and backward passes
-      disc_loss, gen_loss = train_step(discriminator,generator, discriminator_optimizer,generator_optimizer,batch, noise, step_counter)
-      all_disc_loss.append(disc_loss)
-      all_gen_loss.append(gen_loss)
-
+      if(step_counter % 2 == 0):
+        disc_loss, gen_loss = train_step(discriminator,generator, discriminator_optimizer,generator_optimizer,batch, noise)
+        all_disc_loss.append(disc_loss)
+        all_gen_loss.append(gen_loss)
+        last_loss = gen_loss
+      else:
+        disc_loss = train_step_disc(discriminator, discriminator_optimizer,batch, noise)
+        all_disc_loss.append(disc_loss)
+        all_gen_loss.append(last_loss)
+        
       #reporting
       if (step_counter % args.print_freq) == 0:
 
