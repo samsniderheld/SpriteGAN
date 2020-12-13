@@ -36,7 +36,7 @@ def train_step(discriminator, generator, d_op, g_op, images, noise):
 
 
 @tf.function
-def train_step_disc(discriminator, d_op, images, noise):
+def train_step_disc(discriminator, generator, d_op, images, noise):
 
   #train and upate discriminator on real data
   with tf.GradientTape() as disc_tape:
@@ -138,15 +138,15 @@ def train(args):
 
       #perform forward and backward passes
       if(step_counter % 2 == 0):
-        disc_loss, gen_loss = train_step(discriminator,generator, discriminator_optimizer,generator_optimizer,batch, noise)
+        disc_loss, gen_loss = train_step(discriminator, generator, discriminator_optimizer,generator_optimizer,batch, noise)
         all_disc_loss.append(disc_loss)
         all_gen_loss.append(gen_loss)
         last_loss = gen_loss
       else:
-        disc_loss = train_step_disc(discriminator, discriminator_optimizer,batch, noise)
+        disc_loss = train_step_disc(discriminator, generator, discriminator_optimizer,batch, noise)
         all_disc_loss.append(disc_loss)
         all_gen_loss.append(last_loss)
-        
+
       #reporting
       if (step_counter % args.print_freq) == 0:
 
