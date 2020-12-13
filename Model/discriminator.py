@@ -4,6 +4,7 @@ from Model.ops import down_res_block, dense_spectral_norm, down_res_block_2, dow
 from tensorflow.keras.models import Model
 import tensorflow as tf
 
+@tf.function
 def make_sagan_discriminator_model(img_dim, disc_kernel_size, kernel_init):
     
   image_shape = (img_dim,img_dim,3)
