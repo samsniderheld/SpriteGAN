@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import MaxPool2D
+from .ops import *
 
 
 #via https://github.com/grohith327/simplegan/blob/master/simplegan/layers/spectralnorm.py
@@ -183,38 +184,25 @@ class SelfAttention2(tf.keras.Model):
     def build(self, input):
 
         _, _, _, n_channels = input
-        self.conv_f = SpectralNormalization(
-                tf.keras.layers.Conv2D(
-                    filters=n_channels // 8, kernel_size=(1, 1), padding="same", strides=(1, 1)
-                )
-            )
-        self.conv_g = SpectralNormalization(
-            tf.keras.layers.Conv2D(
-                filters=n_channels // 8, kernel_size=(1, 1), padding="same", strides=(1, 1)
-            )
-        )
-        self.conv_h = SpectralNormalization(
-            tf.keras.layers.Conv2D(
-                filters=n_channels // 2, kernel_size=(1, 1), padding="same", strides=(1, 1)
-            )
-        )
+        # self.conv_f = conv_spectral_norm( n_channels // 8, 1, 1,True)
 
-        self.conv_o = SpectralNormalization(
-            tf.keras.layers.Conv2D(
-                filters=n_channels, kernel_size=(1, 1), padding="same", strides=(1, 1)
-            )
-        )
+        # self.conv_g = conv_spectral_norm( n_channels // 8, 1, 1,True)
+
+        # self.conv_h = conv_spectral_norm( n_channels // 2, 1, 1,True)
+
+        # self.conv_o = conv_spectral_norm( n_channels, 1, 1,True)
+
 
 
     def call(self, x):
         kernel_init = tf.keras.initializers.GlorotUniform()
         batch_size, height, width, num_channels = x.get_shape().as_list()
-        f = self.conv_f(x) # [bs, h, w, c']
+        f = conv_spectral_norm(x, num_channels // 8, 1, 1,kernel_init, True) # [bs, h, w, c']
         f = MaxPool2D()(f)
 
-        g = self.conv_g(x) # [bs, h, w, c']
+        g = conv_spectral_norm(x, num_channels // 8, 1, 1,kernel_init, True) # [bs, h, w, c']
 
-        h = self.conv_h(x) # [bs, h, w, c']
+        h = conv_spectral_norm(x, num_channels // 2, 1, 1,kernel_init, True) # [bs, h, w, c']
         h = MaxPool2D()(h)
 
         # N = h * w
@@ -227,7 +215,7 @@ class SelfAttention2(tf.keras.Model):
 
         # o = tf.reshape(o, shape=[batch_size, height, width, num_channels // 2])  # [bs, h, w, C]
         o = tf.reshape(o, shape=[tf.shape(x)[0], height, width, num_channels // 2])  # [bs, h, w, C]        o = conv_spectral_norm(o, num_channels , 1, 1,kernel_init,True) # [bs, h, w, c']
-        o = self.conv_o(o)
+        o = conv_spectral_norm(o, num_channels, 1, 1, kernel_init, True)
         x = gamma * o + x
 
         return x

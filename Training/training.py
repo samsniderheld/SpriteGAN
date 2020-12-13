@@ -137,7 +137,7 @@ def train(args):
       noise = tf.random.normal([args.batch_size,1,1,args.noise_dim])
 
       #perform forward and backward passes
-      if(step_counter % 2 == 0):
+      if(step_counter % 1 == 0):
         disc_loss, gen_loss = train_step(discriminator, generator, discriminator_optimizer,generator_optimizer,batch, noise)
         all_disc_loss.append(disc_loss)
         all_gen_loss.append(gen_loss)

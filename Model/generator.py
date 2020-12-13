@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import Conv2D, Activation, Input, Reshape, BatchNormalization
-from Model.ops import up_res_block, dense_spectral_norm, conv_spectral_norm
-from Model.layers import SelfAttention, SelfAttention2
+from Model.ops import up_res_block, dense_spectral_norm, conv_spectral_norm, attention_3
+# from Model.layers import SelfAttention, SelfAttention2
 from tensorflow.keras.models import Model
 
 
@@ -20,7 +20,7 @@ def make_sagan_generator_model(img_dim, noise_shape, gen_kernel_size, kernel_ini
   
   generator = up_res_block(generator,num_filters // 4, gen_kernel_size, kernel_init)
 
-  generator = SelfAttention2()(generator)
+  generator = attention_3(generator, num_filters // 4)
 
   generator = up_res_block(generator,num_filters // 8, gen_kernel_size, kernel_init)
 

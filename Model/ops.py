@@ -1,5 +1,5 @@
-from tensorflow.keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, Add, AveragePooling2D, ReLU
-from Model.layers import SpectralNormalization
+from tensorflow.keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, Add, AveragePooling2D, ReLU, MaxPool2D
+# from Model.layers import SpectralNormalization
 import tensorflow as tf
 
 
@@ -7,7 +7,7 @@ import tensorflow as tf
 def up_res_block(input, filters, gen_kernel_size, kernel_init):
 
   skip = up_sample(input)
-  skip = conv_spectral_norm(skip, filters, 1, 1, kernel_init, False)
+  skip = conv_spectral_norm(skip, filters, gen_kernel_size, 1, kernel_init, False, pad_type='zero')
 
   output = BatchNormalization()(input)
   output = ReLU()(output)
@@ -46,7 +46,7 @@ def down_res_block(input, filters, disc_kernel_size, kernel_init):
 #via https://github.com/taki0112/Self-Attention-GAN-Tensorflow/blob/master/ops.py
 def down_res_block_2(input, filters, disc_kernel_size, kernel_init):
 
-  skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True)
+  skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True, pad_type='zero')
   skip = AveragePooling2D()(skip)
 
   output = LeakyReLU(0.2)(input)
@@ -79,7 +79,7 @@ def final_block(input, filters, disc_kernel_size, kernel_init):
 def down_res_block_2_init(input, filters, disc_kernel_size, kernel_init):
 
   skip = AveragePooling2D()(input)
-  skip = conv_spectral_norm(skip, filters, disc_kernel_size, 1,kernel_init,True)
+  skip = conv_spectral_norm(skip, filters, disc_kernel_size, 1,kernel_init,True, pad_type='zero')
 
   output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
   output = LeakyReLU(0.2)(output)
@@ -102,23 +102,24 @@ def dense_spectral_norm(input,filters,bias):
 
   # return spectralDense(input)
 
-  weight_init = tf.keras.initializers.GlorotUniform()
+  kernel_init = tf.keras.initializers.GlorotUniform()
+  bias_init = tf.keras.initializers.Constant(0.)
 
-  x = tf.layers.flatten(input)
+  x = tf.keras.layers.Flatten()(input)
   shape = x.get_shape().as_list()
   channels = shape[-1]
 
-  # w = tf.get_variable("kernel", [channels, filters], tf.float32, initializer=weight_init, regularizer=None)
-  w = tf.Variable(shape=(channels, filters))
+  # w = tf.get_variable("kernel", [channels, filters], tf.float32, initializer=kernal_init, regularizer=None)
+  w = tf.Variable(kernel_init(shape=(channels,filters)), name = "kernal")
 
-  bias = tf.get_variable(0, shape = (filters))
+  bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
 
   x = tf.matmul(x, spectral_norm(w)) + bias
 
 
   return x
 
-def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias):
+def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, pad_type='reflect'):
 
   # spectralConv = SpectralNormalization(
   #   Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)
@@ -140,18 +141,40 @@ def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias):
   pad_left = pad // 2
   pad_right = pad - pad_left
 
-  x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
+  if pad_type == 'zero':
+      x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
+  if pad_type == 'reflect':
+      x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
 
   # w = tf.get_variable("kernel", shape=[kernel_size, kernel_size, x.get_shape()[-1],filters], initializer=kernal_init)
-  w = tf.Variable(shape=(kernel_size, kernel_size, x.get_shape()[-1],filters))
+  w = tf.Variable(kernel_init(shape=(kernel_size, kernel_size, x.get_shape()[-1],filters)), name = "kernel")
 
-  x = tf.nn.conv2d(input=x, filter=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID',, initializer=kernal_init)
+  x = tf.nn.conv2d(input=x, filters=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
 
   # bias = tf.get_variable("bias", [filters], initializer=tf.constant_initializer(0.0))
+  bias_init = tf.keras.initializers.Constant(0.)
+  bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
 
-  bias = tf.Variable(0, shape = (filters))
+  # x = tf.nn.bias_add(x, bias)
+  x = x + bias
+  
 
-  x = tf.nn.bias_add(x, bias)
+  return x
+
+def att_conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, pad_type='reflect'):
+
+  # w = tf.get_variable("kernel", shape=[kernel_size, kernel_size, x.get_shape()[-1],filters], initializer=kernal_init)
+  w = tf.Variable(kernel_init(shape=(kernel_size, kernel_size, input.get_shape()[-1],filters)), name = "kernel")
+
+  x = tf.nn.conv2d(input=input, filters=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
+
+  # bias = tf.get_variable("bias", [filters], initializer=tf.constant_initializer(0.0))
+  bias_init = tf.keras.initializers.Constant(0.)
+  bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
+
+  # x = tf.nn.bias_add(x, bias)
+  x = x + bias
+  
 
   return x
 
@@ -166,9 +189,11 @@ def down_sample(input):
 def spectral_norm(w, iteration=1):
     w_shape = w.get_shape().as_list()
     w = tf.reshape(w, [-1, w_shape[-1]])
+    # kernel_init = tf.keras.initializers.GlorotUniform()
+    kernel_init = tf.keras.initializers.RandomNormal()
 
     # u = tf.get_variable("u", [1, w_shape[-1]], initializer=tf.random_normal_initializer(), trainable=False)
-    u = tf.Variable(shape=(1, w_shape[-1]))
+    u = tf.Variable(kernel_init(shape=(1, w_shape[-1])), name="u", trainable=False)
 
     u_hat = u
     v_hat = None
@@ -197,3 +222,31 @@ def spectral_norm(w, iteration=1):
         w_norm = tf.reshape(w_norm, w_shape)
 
     return w_norm
+
+def hw_flatten(x) :
+    return tf.reshape(x, shape=[tf.shape(x)[0], -1, tf.shape(x)[-1]])
+
+def attention_3(x, channels):
+  kernel_init = tf.keras.initializers.GlorotUniform()
+  batch_size, height, width, num_channels = x.get_shape().as_list()
+  f = att_conv_spectral_norm(x,channels // 8, 1, 1,kernel_init, True) # [bs, h, w, c']
+  f = MaxPool2D()(f)
+
+  g = att_conv_spectral_norm(x,channels // 8, 1, 1,kernel_init, True) # [bs, h, w, c']
+
+  h = att_conv_spectral_norm(x,channels // 2, 1, 1,kernel_init, True) # [bs, h, w, c']
+  h = MaxPool2D()(h)
+
+  # N = h * w
+  s = tf.matmul(hw_flatten(g), hw_flatten(f), transpose_b=True)  # # [bs, N, N]
+
+  beta = tf.nn.softmax(s)  # attention map
+
+  o = tf.matmul(beta, hw_flatten(h))  # [bs, N, C]
+  gamma = tf.Variable([1.0])
+
+  # o = tf.reshape(o, shape=[batch_size, height, width, num_channels // 2])  # [bs, h, w, C]
+  o = tf.reshape(o, shape=[tf.shape(x)[0], height, width, num_channels // 2])  # [bs, h, w, C]
+  o = att_conv_spectral_norm(o, channels, 1, 1, kernel_init, True)
+  x = gamma * o + x
+  return x
