@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Dense, Conv2D, BatchNormalization, LeakyReLU, Add, AveragePooling2D, ReLU, MaxPool2D
-# from Model.layers import SpectralNormalization
+from Model.layers import SpectralNormalization
 import tensorflow as tf
 
 
@@ -126,6 +126,7 @@ def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, p
   )
 
   return spectralConv(input)
+  # return Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)(input)
 
   # h = input.get_shape().as_list()[1]
 

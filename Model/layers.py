@@ -45,7 +45,7 @@ class SpectralNormalization(tf.keras.layers.Wrapper):
 
         self.u = self.add_weight(
             shape=(1, self.w_shape[-1]),
-            initializer=tf.initializers.TruncatedNormal(stddev=0.02),
+            initializer=tf.keras.initializers.RandomNormal(),
             trainable=False,
             name="sn_u",
             dtype=self.layer.kernel.dtype,
@@ -76,7 +76,7 @@ class SpectralNormalization(tf.keras.layers.Wrapper):
 class SelfAttention(tf.keras.Model):
     def __init__(self, spectral_norm=True):
         super(SelfAttention, self).__init__()
-        self.scaling_factor = tf.Variable(0.0)
+        self.scaling_factor = tf.Variable(1.0)
         self.spectral_norm = spectral_norm
 
     def get_config(self):
@@ -220,13 +220,13 @@ class SelfAttention2(tf.keras.Model):
 
         return x
 
-def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias):
+# def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias):
 
-  spectralConv = SpectralNormalization(
-    tf.keras.layers.Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)
-  )
+#   spectralConv = SpectralNormalization(
+#     tf.keras.layers.Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)
+#   )
 
-  return spectralConv(input)
+#   return spectralConv()(input)
 
 def hw_flatten(x) :
     return tf.reshape(x, shape=[tf.shape(x)[0], -1, tf.shape(x)[-1]])

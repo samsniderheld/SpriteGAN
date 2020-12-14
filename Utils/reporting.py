@@ -26,7 +26,7 @@ def generate_and_save_images(model, step, test_input):
       fig.axes.get_yaxis().set_visible(False)
 
   plt.tight_layout()
-  plt.savefig('Results/Images/Distribution/distribution_image_at_step_{:04d}.png'.format(step))
+  plt.savefig('Results/Images/Distribution/distribution_image_at_step_{:06d}.png'.format(step))
   plt.show()
 
   single_image_1 = denorm_img(predictions[1, :, :, :]) / 255.
@@ -34,7 +34,7 @@ def generate_and_save_images(model, step, test_input):
   plt.show()
 
   saveImg = cv2.resize(np.asarray(single_image_1)*255, dsize=(512, 512), interpolation=cv2.INTER_NEAREST)
-  cv2.imwrite('Results/Images/SingleImage/single_image_1_at_step_{:04d}.png'.format(step), cv2.cvtColor(saveImg, cv2.COLOR_RGB2BGR))
+  cv2.imwrite('Results/Images/SingleImage/single_image_1_at_step_{:06d}.png'.format(step), cv2.cvtColor(saveImg, cv2.COLOR_RGB2BGR))
 
 
   plt.close('all')
@@ -66,6 +66,7 @@ def plot_loss(all_disc_loss,all_gen_loss):
   plt.figure(figsize=(10,5))
   plt.plot(np.arange(len(all_disc_loss)),all_disc_loss,label='D')
   plt.plot(np.arange(len(all_gen_loss)),all_gen_loss,label='G')
+  plt.ylim(-50,50)
   plt.legend()
   plt.title('All Time Loss')
   plt.savefig('Results/Images/Loss/all_losses')

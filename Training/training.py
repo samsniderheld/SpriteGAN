@@ -89,7 +89,7 @@ def train(args):
 
   dataset = dataset.map(lambda x: normalization_layer(x))
 
-  dataset = dataset.shuffle(files_len, reshuffle_each_iteration=True)
+  # dataset = dataset.shuffle(files_len, reshuffle_each_iteration=False)
 
   # AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -97,7 +97,10 @@ def train(args):
 
   test_dataset_imgs = list(dataset.take(1).as_numpy_iterator())
 
-  print(dataset.take(1))
+  test_batch = dataset.take(1)
+  
+  print(test_batch)
+
 
   test_dataset(test_dataset_imgs[0])
 
