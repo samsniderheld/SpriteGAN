@@ -96,70 +96,70 @@ def down_res_block_2_init(input, filters, disc_kernel_size, kernel_init):
 
 def dense_spectral_norm(input,filters,bias):
 
-  # spectralDense = SpectralNormalization(
-  #     Dense(filters,use_bias=bias)
-  #   )
+  spectralDense = SpectralNormalization(
+      Dense(filters,use_bias=bias)
+    )
 
-  # return spectralDense(input)
+  return spectralDense(input)
 
-  kernel_init = tf.keras.initializers.GlorotUniform()
-  bias_init = tf.keras.initializers.Constant(0.)
+  # kernel_init = tf.keras.initializers.GlorotUniform()
+  # bias_init = tf.keras.initializers.Constant(0.)
 
-  x = tf.keras.layers.Flatten()(input)
-  shape = x.get_shape().as_list()
-  channels = shape[-1]
+  # x = tf.keras.layers.Flatten()(input)
+  # shape = x.get_shape().as_list()
+  # channels = shape[-1]
 
-  # w = tf.get_variable("kernel", [channels, filters], tf.float32, initializer=kernal_init, regularizer=None)
-  w = tf.Variable(kernel_init(shape=(channels,filters)), name = "kernal")
+  # # w = tf.get_variable("kernel", [channels, filters], tf.float32, initializer=kernal_init, regularizer=None)
+  # w = tf.Variable(kernel_init(shape=(channels,filters)), name = "kernal")
 
-  bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
+  # bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
 
-  x = tf.matmul(x, spectral_norm(w)) + bias
+  # x = tf.matmul(x, spectral_norm(w)) + bias
 
 
-  return x
+  # return x
 
 def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, pad_type='reflect'):
 
-  # spectralConv = SpectralNormalization(
-  #   Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)
-  # )
+  spectralConv = SpectralNormalization(
+    Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)
+  )
 
-  # return spectralConv(input)
+  return spectralConv(input)
 
-  h = input.get_shape().as_list()[1]
+  # h = input.get_shape().as_list()[1]
 
-  pad = 1
+  # pad = 1
 
-  if h % stride == 0:
-      pad = pad * 2
-  else:
-      pad = max(kernel_size - (h % stride), 0)
+  # if h % stride == 0:
+  #     pad = pad * 2
+  # else:
+  #     pad = max(kernel_size - (h % stride), 0)
 
-  pad_top = pad // 2
-  pad_bottom = pad - pad_top
-  pad_left = pad // 2
-  pad_right = pad - pad_left
+  # pad_top = pad // 2
+  # pad_bottom = pad - pad_top
+  # pad_left = pad // 2
+  # pad_right = pad - pad_left
 
-  if pad_type == 'zero':
-      x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
-  if pad_type == 'reflect':
-      x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
+  # if pad_type == 'zero':
+  #     x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
+  # if pad_type == 'reflect':
+  #     x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
 
-  # w = tf.get_variable("kernel", shape=[kernel_size, kernel_size, x.get_shape()[-1],filters], initializer=kernal_init)
-  w = tf.Variable(kernel_init(shape=(kernel_size, kernel_size, x.get_shape()[-1],filters)), name = "kernel")
+  # # w = tf.get_variable("kernel", shape=[kernel_size, kernel_size, x.get_shape()[-1],filters], initializer=kernal_init)
+  # w = tf.Variable(kernel_init(shape=(kernel_size, kernel_size, x.get_shape()[-1],filters)), name = "kernel")
 
-  x = tf.nn.conv2d(input=x, filters=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
+  # x = tf.nn.conv2d(input=x, filters=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
 
-  # bias = tf.get_variable("bias", [filters], initializer=tf.constant_initializer(0.0))
-  bias_init = tf.keras.initializers.Constant(0.)
-  bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
+  # # bias = tf.get_variable("bias", [filters], initializer=tf.constant_initializer(0.0))
+  # bias_init = tf.keras.initializers.Constant(0.)
+  # bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
 
-  # x = tf.nn.bias_add(x, bias)
-  x = x + bias
+  # # x = tf.nn.bias_add(x, bias)
+  # x = x + bias
   
 
-  return x
+  # return x
 
 def att_conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, pad_type='reflect'):
 
