@@ -22,29 +22,8 @@ def up_res_block(input, filters, gen_kernel_size, kernel_init):
 
   return output
 
-#via https://github.com/manicman1999/Keras-BiGAN/blob/master/bigan.py
-def down_res_block(input, filters, disc_kernel_size, kernel_init):
-
-  skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True)
-
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
-  output = LeakyReLU(0.2)(output)
-
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
-  output = LeakyReLU(0.2)(output)
-
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
-
-  output = Add()([output, skip])
-  output = LeakyReLU(0.2)(output)
-
-  output = AveragePooling2D()(output)
-
-
-  return output
-
 #via https://github.com/taki0112/Self-Attention-GAN-Tensorflow/blob/master/ops.py
-def down_res_block_2(input, filters, disc_kernel_size, kernel_init):
+def down_res_block(input, filters, disc_kernel_size, kernel_init):
 
   skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True, pad_type='zero')
   skip = AveragePooling2D()(skip)
@@ -61,39 +40,6 @@ def down_res_block_2(input, filters, disc_kernel_size, kernel_init):
 
   return output
 
-
-def final_block(input, filters, disc_kernel_size, kernel_init):
-
-  # skip = conv_spectral_norm(input, filters, disc_kernel_size, 1,kernel_init,True)
-
-  output = LeakyReLU(0.2)(input)
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
-  
-  output = LeakyReLU(0.2)(output)
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True) 
-
-  # output = Add()([skip, output])
-
-  return output
-
-def down_res_block_2_init(input, filters, disc_kernel_size, kernel_init):
-
-  skip = AveragePooling2D()(input)
-  skip = conv_spectral_norm(skip, filters, disc_kernel_size, 1,kernel_init,True, pad_type='zero')
-
-  output = conv_spectral_norm(input, filters, disc_kernel_size, 1, kernel_init, True)
-  output = LeakyReLU(0.2)(output)
-
-  output = conv_spectral_norm(output, filters, disc_kernel_size, 1, kernel_init, True)
-  output = AveragePooling2D()(output)
-
-  output = Add()([output, skip])
-
-
-  return output
-
-
-
 def dense_spectral_norm(input,filters,bias):
 
   spectralDense = SpectralNormalization(
@@ -102,23 +48,6 @@ def dense_spectral_norm(input,filters,bias):
 
   return spectralDense(input)
 
-  # kernel_init = tf.keras.initializers.GlorotUniform()
-  # bias_init = tf.keras.initializers.Constant(0.)
-
-  # x = tf.keras.layers.Flatten()(input)
-  # shape = x.get_shape().as_list()
-  # channels = shape[-1]
-
-  # # w = tf.get_variable("kernel", [channels, filters], tf.float32, initializer=kernal_init, regularizer=None)
-  # w = tf.Variable(kernel_init(shape=(channels,filters)), name = "kernal")
-
-  # bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
-
-  # x = tf.matmul(x, spectral_norm(w)) + bias
-
-
-  # return x
-
 def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, pad_type='reflect'):
 
   spectralConv = SpectralNormalization(
@@ -126,58 +55,6 @@ def conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, p
   )
 
   return spectralConv(input)
-  # return Conv2D(filters, kernel_size = (kernel_size,kernel_size), strides = (stride,stride), padding = "same", data_format = "channels_last", kernel_initializer = kernel_init, use_bias=bias)(input)
-
-  # h = input.get_shape().as_list()[1]
-
-  # pad = 1
-
-  # if h % stride == 0:
-  #     pad = pad * 2
-  # else:
-  #     pad = max(kernel_size - (h % stride), 0)
-
-  # pad_top = pad // 2
-  # pad_bottom = pad - pad_top
-  # pad_left = pad // 2
-  # pad_right = pad - pad_left
-
-  # if pad_type == 'zero':
-  #     x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
-  # if pad_type == 'reflect':
-  #     x = tf.pad(input, [[0, 0], [pad_top, pad_bottom], [pad_left, pad_right], [0, 0]], mode='REFLECT')
-
-  # # w = tf.get_variable("kernel", shape=[kernel_size, kernel_size, x.get_shape()[-1],filters], initializer=kernal_init)
-  # w = tf.Variable(kernel_init(shape=(kernel_size, kernel_size, x.get_shape()[-1],filters)), name = "kernel")
-
-  # x = tf.nn.conv2d(input=x, filters=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
-
-  # # bias = tf.get_variable("bias", [filters], initializer=tf.constant_initializer(0.0))
-  # bias_init = tf.keras.initializers.Constant(0.)
-  # bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
-
-  # # x = tf.nn.bias_add(x, bias)
-  # x = x + bias
-  
-
-  # return x
-
-def att_conv_spectral_norm(input, filters, kernel_size, stride, kernel_init, bias, pad_type='reflect'):
-
-  # w = tf.get_variable("kernel", shape=[kernel_size, kernel_size, x.get_shape()[-1],filters], initializer=kernal_init)
-  w = tf.Variable(kernel_init(shape=(kernel_size, kernel_size, input.get_shape()[-1],filters)), name = "kernel")
-
-  x = tf.nn.conv2d(input=input, filters=spectral_norm(w), strides=[1, stride, stride, 1], padding='VALID')
-
-  # bias = tf.get_variable("bias", [filters], initializer=tf.constant_initializer(0.0))
-  bias_init = tf.keras.initializers.Constant(0.)
-  bias = tf.Variable(bias_init(shape=(filters,)), name = "bias")
-
-  # x = tf.nn.bias_add(x, bias)
-  x = x + bias
-  
-
-  return x
 
 def up_sample(input):
   _, h, w, _ = input.get_shape().as_list()
@@ -187,67 +64,7 @@ def up_sample(input):
 def down_sample(input):
   return AveragePooling2D(input, pool_size=(2,2), strides = (2,2))
 
-def spectral_norm(w, iteration=1):
-    w_shape = w.get_shape().as_list()
-    w = tf.reshape(w, [-1, w_shape[-1]])
-    # kernel_init = tf.keras.initializers.GlorotUniform()
-    kernel_init = tf.keras.initializers.RandomNormal()
-
-    # u = tf.get_variable("u", [1, w_shape[-1]], initializer=tf.random_normal_initializer(), trainable=False)
-    u = tf.Variable(kernel_init(shape=(1, w_shape[-1])), name="u", trainable=False)
-
-    u_hat = u
-    v_hat = None
-    for i in range(iteration):
-        """
-        power iteration
-        Usually iteration = 1 will be enough
-        """
-
-        # v = tf.math.l2_normalize(tf.matmul(u, tf.transpose(w)))
-        # u = tf.math.l2_normalize(tf.matmul(v, w))
-
-        v_ = tf.matmul(u_hat, tf.transpose(w))
-        v_hat = tf.math.l2_normalize(v_)
-
-        u_ = tf.matmul(v_hat, w)
-        u_hat = tf.math.l2_normalize(u_)
-
-    u_hat = tf.stop_gradient(u_hat)
-    v_hat = tf.stop_gradient(v_hat)
-
-    sigma = tf.matmul(tf.matmul(v_hat, w), tf.transpose(u_hat))
-
-    with tf.control_dependencies([u.assign(u_hat)]):
-        w_norm = w / sigma
-        w_norm = tf.reshape(w_norm, w_shape)
-
-    return w_norm
-
 def hw_flatten(x) :
     return tf.reshape(x, shape=[tf.shape(x)[0], -1, tf.shape(x)[-1]])
 
-def attention_3(x, channels):
-  kernel_init = tf.keras.initializers.GlorotUniform()
-  batch_size, height, width, num_channels = x.get_shape().as_list()
-  f = att_conv_spectral_norm(x,channels // 8, 1, 1,kernel_init, True) # [bs, h, w, c']
-  f = MaxPool2D()(f)
 
-  g = att_conv_spectral_norm(x,channels // 8, 1, 1,kernel_init, True) # [bs, h, w, c']
-
-  h = att_conv_spectral_norm(x,channels // 2, 1, 1,kernel_init, True) # [bs, h, w, c']
-  h = MaxPool2D()(h)
-
-  # N = h * w
-  s = tf.matmul(hw_flatten(g), hw_flatten(f), transpose_b=True)  # # [bs, N, N]
-
-  beta = tf.nn.softmax(s)  # attention map
-
-  o = tf.matmul(beta, hw_flatten(h))  # [bs, N, C]
-  gamma = tf.Variable([1.0])
-
-  # o = tf.reshape(o, shape=[batch_size, height, width, num_channels // 2])  # [bs, h, w, C]
-  o = tf.reshape(o, shape=[tf.shape(x)[0], height, width, num_channels // 2])  # [bs, h, w, C]
-  o = att_conv_spectral_norm(o, channels, 1, 1, kernel_init, True)
-  x = gamma * o + x
-  return x

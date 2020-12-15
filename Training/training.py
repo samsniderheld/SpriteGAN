@@ -122,6 +122,7 @@ def train(args):
 
   #start counter
   step_begin_time = time.time()
+  start_time = time.time()
 
 
   #run through all steps using tf dataset
@@ -139,16 +140,12 @@ def train(args):
 
       noise = tf.random.normal([args.batch_size,1,1,args.noise_dim])
 
-      #perform forward and backward passes
-      if(step_counter % 1 == 0):
-        disc_loss, gen_loss = train_step(discriminator, generator, discriminator_optimizer,generator_optimizer,batch, noise)
-        all_disc_loss.append(disc_loss)
-        all_gen_loss.append(gen_loss)
-        last_loss = gen_loss
-      else:
-        disc_loss = train_step_disc(discriminator, generator, discriminator_optimizer,batch, noise)
-        all_disc_loss.append(disc_loss)
-        all_gen_loss.append(last_loss)
+
+      disc_loss, gen_loss = train_step(discriminator, generator, discriminator_optimizer,generator_optimizer,batch, noise)
+      all_disc_loss.append(disc_loss)
+      all_gen_loss.append(gen_loss)
+      last_loss = gen_loss
+
 
       #reporting
       if (step_counter % args.print_freq) == 0:
@@ -156,7 +153,7 @@ def train(args):
         end_time = time.time()
         diff_time = int(end_time - step_begin_time)
 
-        print("Step %d completed. Time took: %s secs." % (step_counter, diff_time))
+        print("Step %d completed. Time took: %s secs. Total time: %s" % (step_counter, diff_time, start_time))
 
         #seed values for reporting images
         latent_seed = tf.random.normal([9, 1,1,args.noise_dim])
