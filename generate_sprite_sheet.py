@@ -16,6 +16,7 @@ def parse_args():
   parser.add_argument('--disc_kernel_size', type=int, default=3, help='The size of the discriminator kernels')
   parser.add_argument('--noise_dim', type=int, default=128, help='The size of the latent vector')
   parser.add_argument('--img_dim', type=int, default=128, help='The dimension of the image')
+  parser.add_argument('--output_sprite_dim', type=int, default=128, help='The dimension of each sprite in the sheet')
   parser.add_argument('--sprite_sheet_dim', type=int, default=10, help='The Sprite Sheet Dim')
 
   return parser.parse_args()
@@ -36,6 +37,7 @@ idx=0
 noise_dim = args.noise_dim
 noise_shape = (1,1,args.noise_dim)
 sprite_sheet_dim = args.sprite_sheet_dim
+output_sprite_dim = args.output_sprite_dim
 imgs = []
 
 generator = load_generator_from_step(args)
@@ -63,6 +65,8 @@ for i in tqdm(range(0,sprite_sheet_dim)):
     y = denorm_img(y)
     y = np.array(y[0])
 
+    y = cv2.resize(y, dsize=(output_sprite_dim, output_sprite_dim), interpolation=cv2.INTER_NEAREST)
+
     imgs.append(y)
 
     idx+=1
@@ -81,4 +85,4 @@ for i in range(0,pow(sprite_sheet_dim,2),sprite_sheet_dim):
 
 full_img = cv2.vconcat(v_stacks)
 
-cv2.imwrite('Results/SpriteSheets/SpriteSheet.png', cv2.cvtColor(full_img, cv2.COLOR_RGB2BGR))
+cv2.imwrite('Results/SpriteSheets/SpriteSheet.jpg', cv2.cvtColor(full_img, cv2.COLOR_RGB2BGR))

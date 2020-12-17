@@ -89,12 +89,6 @@ def train(args):
 
   dataset = dataset.map(lambda x: normalization_layer(x))
 
-  # dataset = dataset.shuffle(files_len, reshuffle_each_iteration=False)
-
-  # AUTOTUNE = tf.data.experimental.AUTOTUNE
-
-  # dataset = dataset.cache().prefetch(buffer_size=AUTOTUNE)
-
   test_dataset_imgs = list(dataset.take(1).as_numpy_iterator())
 
   test_batch = dataset.take(1)
@@ -114,7 +108,7 @@ def train(args):
 
 
   generator.summary()
-  # discriminator.summary()
+  discriminator.summary()
 
   #setup reporting lists
   all_disc_loss = []
@@ -133,7 +127,6 @@ def train(args):
   num_epochs = int(args.num_training_steps / steps_per_epoch)
 
   step_counter = 0
-  last_loss = None
   for epoch in range(num_epochs):
 
     for batch in dataset:
@@ -144,16 +137,15 @@ def train(args):
       disc_loss, gen_loss = train_step(discriminator, generator, discriminator_optimizer,generator_optimizer,batch, noise)
       all_disc_loss.append(disc_loss)
       all_gen_loss.append(gen_loss)
-      last_loss = gen_loss
-
 
       #reporting
       if (step_counter % args.print_freq) == 0:
 
         end_time = time.time()
         diff_time = int(end_time - step_begin_time)
+        total_time = int(end_time - start_time)
 
-        print("Step %d completed. Time took: %s secs. Total time: %s" % (step_counter, diff_time, start_time))
+        print("Step %d completed. Time took: %s secs. Total time: %s secs" % (step_counter, diff_time, total_time))
 
         #seed values for reporting images
         latent_seed = tf.random.normal([9, 1,1,args.noise_dim])
