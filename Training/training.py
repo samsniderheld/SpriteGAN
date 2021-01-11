@@ -103,16 +103,14 @@ def train(args):
   kernel_init = tf.keras.initializers.GlorotUniform()
 
 
-  if(!args.continue_training){
+  if(!args.continue_training):
 
       generator = make_sagan_generator_model(args.img_dim, noise_shape, args.gen_kernel_size, kernel_init)
       discriminator = make_sagan_discriminator_model(args.img_dim, args.disc_kernel_size, kernel_init)
-      
-  } else {
+
+  elif:
 
       discriminator, generator = load_models_from_step(args)
-  }
-
 
 
   generator.summary()
@@ -134,7 +132,12 @@ def train(args):
   steps_per_epoch = files_len / args.batch_size
   num_epochs = int(args.num_training_steps / steps_per_epoch)
 
-  step_counter = 0
+  if(!args.continue_training):
+    step_counter = 0
+  elif:
+    step_counter = args.step
+
+
   for epoch in range(num_epochs):
 
     for batch in dataset:
