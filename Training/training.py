@@ -103,8 +103,16 @@ def train(args):
   kernel_init = tf.keras.initializers.GlorotUniform()
 
 
-  generator = make_sagan_generator_model(args.img_dim, noise_shape, args.gen_kernel_size, kernel_init)
-  discriminator = make_sagan_discriminator_model(args.img_dim, args.disc_kernel_size, kernel_init)
+  if(!args.continue_training){
+
+      generator = make_sagan_generator_model(args.img_dim, noise_shape, args.gen_kernel_size, kernel_init)
+      discriminator = make_sagan_discriminator_model(args.img_dim, args.disc_kernel_size, kernel_init)
+      
+  } else {
+
+      discriminator, generator = load_models_from_step(args)
+  }
+
 
 
   generator.summary()
@@ -162,12 +170,12 @@ def train(args):
 
         print("saving model at {}".format(step_counter))
 
-        generator.save_weights("SavedModels/generator_weights_at_step_{}.h5".format(step_counter))
-        discriminator.save_weights("SavedModels/discriminator_weights_at_step_{}.h5".format(step_counter))
+        generator.save_weights("SavedModels/generator_weights_at_step_{:06d}.h5".format(step_counter))
+        discriminator.save_weights("SavedModels/discriminator_weights_at_step_{:06d}.h5".format(step_counter))
 
       step_counter += 1
     
 
-  generator.save_weights("SavedModels/generator_weights_at_step_{}.h5".format(args.num_training_steps))
-  discriminator.save_weights("SavedModels/discriminator_weights_at_step_{}.h5".format(args.num_training_steps))
+  generator.save_weights("SavedModels/generator_weights_at_step_{:06d}.h5".format(args.num_training_steps))
+  discriminator.save_weights("SavedModels/discriminator_weights_at_step_{:06d}.h5".format(args.num_training_steps))
 
