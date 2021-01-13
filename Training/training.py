@@ -173,12 +173,12 @@ def train(args):
 
         print("saving model at {}".format(step_counter))
 
-        generator.save_weights("SavedModels/generator_weights_at_step_{:06d}.h5".format(step_counter))
-        discriminator.save_weights("SavedModels/discriminator_weights_at_step_{:06d}.h5".format(step_counter))
+        generator.save_weights("SavedModels/generator_weights_at_step_{}.h5".format(step_counter))
+        discriminator.save_weights("SavedModels/discriminator_weights_at_step_{}.h5".format(step_counter))
 
       step_counter += 1
     
 
-  generator.save_weights("SavedModels/generator_weights_at_step_{:06d}.h5".format(args.num_training_steps))
-  discriminator.save_weights("SavedModels/discriminator_weights_at_step_{:06d}.h5".format(args.num_training_steps))
+  generator.save_weights("SavedModels/generator_weights_at_step_{}.h5".format(args.num_training_steps))
+  discriminator.save_weights("SavedModels/discriminator_weights_at_step_{}.h5".format(args.num_training_steps))
 
