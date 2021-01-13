@@ -12,6 +12,7 @@ def parse_args():
   desc = "create a lerp video"
   parser = argparse.ArgumentParser(description=desc)
   parser.add_argument('--step', type=int, default=10000, help='The step to load the  model from ')
+  parser.add_argument('--initial_gen_filters', type=int, default=512, help='The initial number of generator fitlers')
   parser.add_argument('--gen_kernel_size', type=int, default=3, help='The size of generator kernels')
   parser.add_argument('--disc_kernel_size', type=int, default=3, help='The size of the discriminator kernels')
   parser.add_argument('--noise_dim', type=int, default=128, help='The size of the latent vector')

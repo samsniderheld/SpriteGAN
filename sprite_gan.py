@@ -13,6 +13,7 @@ def parse_args():
 	parser.add_argument('--data_dir', type=str, default="Data/SaganRaw/", help='The directory that holds the image data')
 	parser.add_argument('--num_training_steps', type=int, default=10000, help='The number of batches to train on')
 	parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')
+	parser.add_argument('--initial_gen_filters', type=int, default=512, help='The initial number of generator fitlers')
 	parser.add_argument('--gen_kernel_size', type=int, default=3, help='The size of generator kernels')
 	parser.add_argument('--disc_kernel_size', type=int, default=3, help='The size of the discriminator kernels')
 	parser.add_argument('--noise_dim', type=int, default=128, help='The size of the latent vector')

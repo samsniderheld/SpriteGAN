@@ -105,7 +105,7 @@ def train(args):
 
   if(not args.continue_training):
 
-      generator = make_sagan_generator_model(args.img_dim, noise_shape, args.gen_kernel_size, kernel_init)
+      generator = make_sagan_generator_model(args.img_dim, noise_shape, args.initial_gen_filters, args.gen_kernel_size, kernel_init)
       discriminator = make_sagan_discriminator_model(args.img_dim, args.disc_kernel_size, kernel_init)
 
   else:

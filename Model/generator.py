@@ -3,9 +3,9 @@ from Model.ops import up_res_block, dense_spectral_norm, conv_spectral_norm
 from Model.layers import SelfAttention
 from tensorflow.keras.models import Model
 
-def make_sagan_generator_model(img_dim, noise_shape, gen_kernel_size, kernel_init):
+def make_sagan_generator_model(img_dim, noise_shape, initial_filters, gen_kernel_size, kernel_init):
 
-  num_filters = 512
+  num_filters = initial_filters
 
   gen_input = Input(shape = noise_shape)
 
